@@ -56,19 +56,27 @@ public class HomeController {
             return "add";
         }
 
-        Optional optEmployer = employerRepository.findById(employerId);
-        Employer employer = (Employer) optEmployer.get();
+        Optional<Employer> optEmployer = employerRepository.findById(employerId);
+        Employer employer = optEmployer.get();
         newJob.setEmployer(employer);
-        jobRepository.save(newJob);
         List<Skill> skillObjs = (List<Skill>) skillRepository.findAllById(skills);
         newJob.setSkills(skillObjs);
+        jobRepository.save(newJob);
         return "view";
     }
 
     @GetMapping("view/{jobId}")
     public String displayViewJob(Model model, @PathVariable int jobId) {
 
-        return "view";
+        Optional optJob = jobRepository.findById(jobId);
+        if (optJob.isPresent()) {
+            Job job =  (Job) optJob.get();
+            model.addAttribute("job", job);
+            return "view";
+        } else {
+            model.addAttribute("jobs", jobRepository.findAll());
+            return "index";
+        }
     }
 
 
